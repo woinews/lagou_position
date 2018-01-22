@@ -54,10 +54,20 @@ def req_position(i):
         result = requests.post(url,headers = headers,proxies = proxy,data = form_data)
         resultdic = result.json()
         jobsInfo = resultdic['content']['positionResult']['result']
-        jobsInfo_list.extend(jobsInfo)
+        for position in jobsInfo:
+            position_dict = {
+                    'position_Name':position['positionName'],
+                    'work_year':position['workYear'],
+                    'salary':position['salary'],
+                    'company':position['companyFullName'],
+                    'Size':position['companySize'],
+                    'education':position['education'],
+                    'district':position['district'],
+                    'industryField':position['industryField']
+                    }
+            #position_id = position['positionId']   position_id用于构造详情页的url
+            jobsInfo_list.append(position_dict)
         time.sleep(3)
-#    for job in jobsInfo:
-#        print(job['companyFullName']+'|'  + '|' + job['positionName']+ '|' + job['salary'])
 
 def main():
     list = [i for i in range(1,31,5)]     #分多次爬取31页内容
