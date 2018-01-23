@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jan 23 09:12:37 2018
-
-@author: chenzx
-"""
-
-"""
-Created on Sun Jan 21 15:56:08 2018
 @author: inews
 爬取拉勾网职位名称为“python数据分析”的职位信息
 """
