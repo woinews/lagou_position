@@ -41,8 +41,27 @@ def get_cookies():
 
     return response.cookies
 
+def position_detail(position_id):
+    cookies = get_cookies()
+    url = 'https://www.lagou.com/jobs/%s.html' %position_id
+    headers = {
+            'User-Agent':np.random.choice(USER_AGENT_LIST),
+            'Host':'www.lagou.com',
+            'Connection':'keep-alive',
+            'Origin':'https://www.lagou.com',
+            'Referer':url,
+            'X-Anit-Forge-Code':'0',
+            'X-Requested-With':'XMLHttpRequest'
+            }
+    result = requests.get(url,headers = headers,cookies=cookies,proxies = proxy)
+    soup = BeautifulSoup(result.content, 'html.parser')
+    position_req = soup.find('dd',class_="job_bt")
+    time.sleep(2)
+    if position_req is None:     #有的页面返回空值，需先进行判断，不然position_req.text会报错
+        return
+    return position_req.text
 
-def req_position(i):
+def get_position(i):
     url = 'https://www.lagou.com/jobs/positionAjax.json?city=%E6%B7%B1%E5%9C%B3&needAddtionalResult=false&isSchoolJob=0'    
     headers = {
             'User-Agent':np.random.choice(USER_AGENT_LIST),
@@ -71,19 +90,22 @@ def req_position(i):
                     'work_year':position['workYear'],
                     'salary':position['salary'],
                     'company':position['companyFullName'],
+                    'company_SN':position['companyShortName'],
                     'Size':position['companySize'],
                     'education':position['education'],
                     'district':position['district'],
-                    'industryField':position['industryField']
+                    'industryField':position['industryField'],
+                    'position_id' : position['positionId']
                     }
-            #position_id = position['positionId']   position_id用于构造详情页的url
+            position_id = position['positionId']   position_id用于构造详情页的url
+            position_dict['position_detail'] = position_detail(position_id)
             jobsInfo_list.append(position_dict)
         time.sleep(3)
 
 def main():
     list = [i for i in range(1,31,5)]     #分多次爬取31页内容
     for i in list:
-        req_position(i)
+        get_position(i)
     pd.DataFrame(jobsInfo_list).to_excel('positiondata.xlsx')
 
 main()
