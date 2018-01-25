@@ -15,13 +15,15 @@ for detail in position_detail:
 jieba.analyse.set_stop_words('delete_word.txt')     #这里首先要import jieba.analyse，且文本文件必须以utf-8格式保存，不然会出现编码错误
 jieba.load_userdict('dict_world.txt')
 
-keywords = jieba.analyse.extract_tags(str(detail_list).replace("'",''), 200)
+keywords = jieba.analyse.extract_tags(str(detail_list), topK=100, withWeight=True, allowPOS=())
 
 wc = WordCloud(background_color="white", max_words=200, 
-               max_font_size=200, width=800, height=600, font_path='C:\Windows\Fonts\SimHei.ttf')
-#max_words是词云显示的最大词数，max_font_size是字体最大值，
-my_wordcloud = wc.generate(str(keywords))
+               max_font_size=200, width=800, height=600, 
+               font_path='C:\Windows\Fonts\SimHei.ttf')     #直接写字体名称，程序无法定位时可添加路径
+#max_words是词云显示的最大词数，max_font_size是字体最大值
 
-plt.imshow(my_wordcloud)
+wc.generate_from_frequencies(dict(keywords))
+
+plt.imshow(wc, interpolation="bilinear")
 plt.axis("off")
 plt.show()
