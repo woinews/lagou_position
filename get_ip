@@ -1,0 +1,51 @@
+import requests
+from bs4 import BeautifulSoup
+import random
+import re  
+import os.path 
+
+USER_AGENT_LIST = [
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1",
+    "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6",
+    "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6",
+    "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; 360SE)",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3",
+    "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3",
+    "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.0 Safari/536.3",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24",
+    "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"
+]
+ 
+def getListProxies():  
+    session = requests.session()  
+    page = session.get("http://www.xicidaili.com/nn", headers=headers)  
+    soup = BeautifulSoup(page.text, 'html.parser')  
+  
+    proxyList = []  
+    taglist = soup.find_all('tr', attrs={'class': re.compile("(odd)|()")})  
+    for trtag in taglist:  
+        tdlist = trtag.find_all('td')  
+        proxy = {'http': tdlist[1].string + ':' + tdlist[2].string,  
+                 'https': tdlist[1].string + ':' + tdlist[2].string}  
+        url = "https://www.so.com/"  #用来测试IP是否可用的url=http://ip.chinaz.com/getip.aspx,可改为目标网站  
+        try:  
+            response = session.get(url, proxies=proxy, timeout=5)  
+            proxyList.append(proxy)  
+            if(len(proxyList) == 1):    #查询到1个可用的代理IP则停止
+                break  
+        except Exception as e:  
+            continue  
+    return proxyList  
+
+def get_response(url):
+    r = requests.get(url,headers = headers,proxies = proxy[0])
+    r.raise_for_status()
+    r.encoding = r.apparent_encoding
+    html = r.text
+    soup = BeautifulSoup(html,'html.parser')
+    return soup
+
+headers = {'user-agent':random.choice(USER_AGENT_LIST)}
+proxy= getListProxies()
+hqhtml = get_response('https://www.baidu.com/')
